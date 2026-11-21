@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le phare des îles Flannan — Trois hommes ont disparu au milieu de l’océan</title>
+<meta name="description" content="Le mystère de la disparition des trois gardiens du phare des îles Flannan en décembre 1900. Une enquête interactive en HTML, CSS et JS purs.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#04070d;
+  --bg2:#070d18;
+  --bg3:#0a1220;
+  --ink:#ece5d3;
+  --ink-dim:#9aa8bc;
+  --ink-faint:#5c6b82;
+  --amber:#d9a441;
+  --amber2:#f0c96a;
+  --line:rgba(236,229,211,.14);
+  --line2:rgba(236,229,211,.08);
+  --card:#0b1424;
+  --red:#c84b3a;
+  --serif:'Cormorant Garamond', Georgia, serif;
+  --sans:'Manrope', system-ui, sans-serif;
+  --mono:'JetBrains Mono', monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--amber);color:#0a0f18}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+img{display:block;max-width:100%}
+
+/* progress */
+#progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--amber),var(--amber2));width:0%;z-index:200;transition:width .1s linear}
+
+/* header */
+header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 28px;transition:.4s;border-bottom:1px solid transparent}
+header.scrolled{background:rgba(4,7,13,.82);backdrop-filter:blur(16px);border-bottom-color:var(--line2);padding:12px 28px}
+.logo{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase}
+.logo-mark{width:34px;height:34px;border:1px solid var(--line);display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.03)}
+.logo-mark span{width:8px;height:8px;background:var(--amber);border-radius:50%;box-shadow:0 0 12px var(--amber);animation:pulse 2.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+nav{display:flex;gap:26px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--ink-dim)}
+nav a{position:relative;padding:4px 0;transition:.3s}
+nav a:hover{color:var(--ink)}
+nav a::after{content:'';position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--amber);transition:.3s}
+nav a:hover::after{width:100%}
+.header-right{display:flex;align-items:center;gap:12px}
+.sound-btn{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--ink);padding:9px 14px;border-radius:100px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;transition:.3s}
+.sound-btn:hover{border-color:var(--amber);color:var(--amber2)}
+.sound-btn.active{background:var(--amber);color:#0a0f18;border-color:var(--amber)}
+@media(max-width:900px){nav{display:none}}
+
+/* HERO */
+#hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%, #0e1b30 0%, #070d18 45%, #04070d 100%)}
+#stars{position:absolute;inset:0;pointer-events:none}
+.star{position:absolute;background:#fff;border-radius:50%;opacity:.7;animation:twinkle 3s infinite}
+@keyframes twinkle{0%,100%{opacity:.2}50%{opacity:.9}}
+.moon{position:absolute;top:12%;right:14%;width:72px;height:72px;border-radius:50%;background:radial-gradient(circle at 35% 35%, #fff8e6, #e8d9a8 60%, #c9b87a);box-shadow:0 0 60px rgba(240,201,106,.35),0 0 120px rgba(240,201,106,.15);opacity:.9}
+.moon::after{content:'';position:absolute;inset:0;border-radius:50%;box-shadow:inset -14px -6px 0 rgba(0,0,0,.12)}
+#lightning{position:absolute;inset:0;background:#dbeafe;opacity:0;pointer-events:none;z-index:3}
+.hero-inner{position:relative;z-index:10;padding:120px 28px 0;max-width:1280px;margin:0 auto;width:100%}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--amber2);border:1px solid rgba(217,164,65,.35);padding:8px 14px;border-radius:100px;background:rgba(217,164,65,.06);backdrop-filter:blur(6px)}
+.eyebrow i{width:6px;height:6px;background:var(--amber);border-radius:50%;display:inline-block;animation:pulse 1.8s infinite}
+h1{font-family:var(--serif);font-weight:500;line-height:.88;letter-spacing:-.02em;margin-top:22px}
+h1 .line1{display:block;font-size:clamp(52px,9.5vw,132px);text-transform:uppercase}
+h1 .line2{display:block;font-size:clamp(52px,9.5vw,132px);text-transform:uppercase;color:transparent;-webkit-text-stroke:1.5px rgba(236,229,211,.85)}
+h1 .line3{display:block;font-size:clamp(28px,4.2vw,58px);font-style:italic;font-weight:400;color:var(--amber2);margin-top:10px;letter-spacing:0;text-transform:none}
+.hero-sub{max-width:620px;color:var(--ink-dim);font-size:16px;line-height:1.7;margin-top:22px}
+.hero-sub strong{color:var(--ink)}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 26px;border-radius:100px;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;transition:.3s;border:1px solid transparent}
+.btn-amber{background:var(--amber);color:#0a0f18}
+.btn-amber:hover{background:var(--amber2);transform:translateY(-2px);box-shadow:0 12px 30px rgba(217,164,65,.25)}
+.btn-ghost{background:rgba(255,255,255,.04);border-color:var(--line);color:var(--ink);backdrop-filter:blur(8px)}
+.btn-ghost:hover{border-color:var(--amber);color:var(--amber2)}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line2);border:1px solid var(--line2);margin-top:36px;max-width:860px}
+.stat{background:rgba(4,7,13,.55);backdrop-filter:blur(10px);padding:18px 20px}
+.stat b{font-family:var(--serif);font-size:32px;font-weight:600;display:block;line-height:1}
+.stat span{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);display:block;margin-top:6px}
+@media(max-width:700px){.hero-stats{grid-template-columns:1fr 1fr}}
+
+/* lighthouse scene */
+.scene{position:relative;height:340px;margin-top:10px;z-index:5}
+#oceanCanvas{position:absolute;left:0;right:0;bottom:0;width:100%;height:220px}
+.lighthouse-wrap{position:absolute;left:50%;bottom:110px;transform:translateX(-50%);width:280px;z-index:6;filter:drop-shadow(0 20px 40px rgba(0,0,0,.6))}
+.lighthouse-wrap svg{width:100%;height:auto;display:block}
+.fog{position:absolute;left:-10%;right:-10%;height:140px;pointer-events:none;z-index:7;background:radial-gradient(50% 100% at 50% 50%, rgba(200,215,235,.16), transparent 70%);filter:blur(6px)}
+.fog.f1{bottom:120px;animation:drift 14s ease-in-out infinite alternate}
+.fog.f2{bottom:60px;opacity:.7;animation:drift 18s ease-in-out infinite alternate-reverse}
+@keyframes drift{from{transform:translateX(-3%)}to{transform:translateX(3%)}}
+.beam-glow{position:absolute;left:50%;top:18px;width:420px;height:420px;transform:translate(-50%,-50%);pointer-events:none;z-index:4;background:conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(240,201,106,.14) 18deg, transparent 36deg, transparent 180deg, rgba(240,201,106,.14) 198deg, transparent 216deg);border-radius:50%;mix-blend-mode:screen}
+
+/* storm control */
+.storm-panel{position:absolute;right:28px;bottom:28px;z-index:20;width:300px;background:rgba(7,13,24,.72);backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:18px;padding:18px}
+.storm-panel h4{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+.storm-panel h4 em{font-style:normal;color:var(--amber2);font-size:13px}
+.storm-panel p{font-size:12px;color:var(--ink-dim);line-height:1.5;margin-top:8px}
+input[type=range]{width:100%;margin-top:14px;appearance:none;height:4px;background:linear-gradient(90deg,#2a3a55,var(--amber));border-radius:100px;outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:20px;height:20px;border-radius:50%;background:var(--amber2);border:3px solid #0a0f18;box-shadow:0 0 0 1px var(--amber),0 4px 14px rgba(0,0,0,.5);cursor:pointer}
+.storm-labels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--ink-faint);margin-top:8px;letter-spacing:.1em;text-transform:uppercase}
+.storm-status{margin-top:12px;font-family:var(--mono);font-size:11px;padding:8px 10px;background:rgba(255,255,255,.04);border-radius:8px;border:1px solid var(--line2);display:flex;justify-content:space-between}
+@media(max-width:800px){.storm-panel{position:relative;right:auto;bottom:auto;margin:20px 16px 24px;width:auto}.scene{height:260px}.lighthouse-wrap{width:200px;bottom:80px}}
+
+/* marquee */
+.marquee{border-top:1px solid var(--line2);border-bottom:1px solid var(--line2);overflow:hidden;background:#060b14;padding:14px 0;white-space:nowrap}
+.marquee-track{display:inline-flex;gap:48px;animation:scroll 28s linear infinite;font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint)}
+.marquee-track b{color:var(--amber)}
+@keyframes scroll{to{transform:translateX(-50%)}}
+
+/* sections */
+section{position:relative;padding:110px 28px}
+.wrap{max-width:1280px;margin:0 auto}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:48px;flex-wrap:wrap}
+.sec-num{font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--amber);text-transform:uppercase;display:flex;align-items:center;gap:12px}
+.sec-num::after{content:'';width:60px;height:1px;background:var(--amber);display:inline-block}
+h2{font-family:var(--serif);font-size:clamp(38px,5.5vw,68px);line-height:.95;font-weight:500;margin-top:14px}
+h2 i{color:var(--amber2);font-weight:400}
+.sec-desc{max-width:420px;color:var(--ink-dim);line-height:1.7;font-size:15px}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s ease}
+.reveal.visible{opacity:1;transform:none}
+
+/* prologue */
+#prologue{background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%)}
+.prologue-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
+@media(max-width:900px){.prologue-grid{grid-template-columns:1fr}}
+.big-text{font-family:var(--serif);font-size:clamp(24px,3vw,36px);line-height:1.35;font-weight:400}
+.big-text em{color:var(--amber2)}
+.body-text{color:var(--ink-dim);line-height:1.8;margin-top:22px;font-size:15px}
+.body-text + .body-text{margin-top:14px}
+.img-frame{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--line);aspect-ratio:4/3;background:#0a1220}
+.img-frame img{width:100%;height:100%;object-fit:cover;filter:grayscale(.4) contrast(1.05) brightness(.85);transition:transform 1.2s ease,filter .6s}
+.img-frame:hover img{transform:scale(1.06);filter:grayscale(0) brightness(.95)}
+.img-caption{position:absolute;left:16px;bottom:16px;right:16px;display:flex;justify-content:space-between;align-items:center;background:rgba(4,7,13,.72);backdrop-filter:blur(10px);border:1px solid var(--line2);border-radius:12px;padding:12px 14px;font-family:var(--mono);font-size:11px;letter-spacing:.08em}
+.img-caption b{color:var(--amber2)}
+.coords{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+.chip{font-family:var(--mono);font-size:11px;letter-spacing:.1em;padding:9px 13px;border:1px solid var(--line);border-radius:100px;color:var(--ink-dim);background:rgba(255,255,255,.03)}
+.chip b{color:var(--ink)}
+
+/* keepers */
+#keepers{background:#060b14}
+.keepers-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:900px){.keepers-grid{grid-template-columns:1fr}}
+.keeper{position:relative;background:linear-gradient(180deg,#0d1729,#080f1d);border:1px solid var(--line2);border-radius:20px;padding:28px;overflow:hidden;transition:transform .4s ease,border-color .4s;transform-style:preserve-3d;will-change:transform}
+.keeper:hover{border-color:rgba(217,164,65,.45)}
+.keeper::before{content:attr(data-num);position:absolute;top:10px;right:18px;font-family:var(--serif);font-size:90px;line-height:1;color:transparent;-webkit-text-stroke:1px rgba(236,229,211,.12);font-weight:700}
+.monogram{width:64px;height:64px;border-radius:50%;border:1px solid rgba(217,164,65,.5);display:grid;place-items:center;font-family:var(--serif);font-size:24px;color:var(--amber2);background:rgba(217,164,65,.07);margin-bottom:20px}
+.keeper h3{font-family:var(--serif);font-size:30px;font-weight:600;line-height:1}
+.keeper .role{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);margin-top:8px}
+.keeper p{color:var(--ink-dim);line-height:1.7;font-size:14px;margin-top:16px}
+.keeper .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.keeper .meta span{font-family:var(--mono);font-size:10px;letter-spacing:.08em;padding:6px 9px;border:1px solid var(--line2);border-radius:100px;color:var(--ink-dim)}
+.keeper .quote{margin-top:20px;padding-top:18px;border-top:1px dashed var(--line);font-family:var(--serif);font-style:italic;font-size:18px;color:var(--ink);line-height:1.4}
+.keeper .quote small{display:block;font-family:var(--mono);font-style:normal;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-top:8px}
+
+/* logbook */
+#chronicle{background:linear-gradient(180deg,#060b14,#04070d)}
+.logbook-layout{display:grid;grid-template-columns:280px 1fr;gap:22px}
+@media(max-width:900px){.logbook-layout{grid-template-columns:1fr}}
+.log-dates{display:flex;flex-direction:column;gap:10px}
+.log-date-btn{text-align:left;background:rgba(255,255,255,.03);border:1px solid var(--line2);color:var(--ink-dim);padding:16px 18px;border-radius:14px;transition:.3s}
+.log-date-btn b{font-family:var(--serif);font-size:20px;color:var(--ink);display:block}
+.log-date-btn span{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase}
+.log-date-btn.active{background:var(--amber);border-color:var(--amber);color:#0a0f18}
+.log-date-btn.active b,.log-date-btn.active span{color:#0a0f18}
+.log-date-btn:hover{border-color:var(--amber);transform:translateX(4px)}
+.log-paper{background:#f3ead6;color:#1a1f2a;border-radius:18px;padding:32px;position:relative;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.log-paper::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 31px,rgba(0,0,0,.04) 32px);pointer-events:none}
+.log-paper::after{content:'FLANNAN LIGHT';position:absolute;top:18px;right:22px;font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:rgba(0,0,0,.25)}
+.log-top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:2px solid rgba(0,0,0,.12);padding-bottom:16px;margin-bottom:20px;position:relative;z-index:1}
+.log-top h3{font-family:var(--serif);font-size:28px}
+.log-top .weather{font-family:var(--mono);font-size:11px;text-align:right;line-height:1.6}
+.log-text{font-family:var(--mono);font-size:15px;line-height:1.9;min-height:150px;position:relative;z-index:1;white-space:pre-wrap}
+.log-text::after{content:'▌';animation:blink 1s infinite;color:var(--amber)}
+@keyframes blink{50%{opacity:0}}
+.log-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px;padding-top:16px;border-top:1px dashed rgba(0,0,0,.15);position:relative;z-index:1;flex-wrap:wrap}
+.badge{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:7px 10px;border-radius:100px;background:#1a1f2a;color:#f3ead6}
+.badge.warn{background:#c84b3a}
+.storm-bar{flex:1;min-width:160px;height:8px;background:rgba(0,0,0,.12);border-radius:100px;overflow:hidden}
+.storm-bar i{display:block;height:100%;background:linear-gradient(90deg,#5a7aa8,#c84b3a);width:0%;transition:width .8s ease}
+.log-note{font-size:12px;color:rgba(0,0,0,.55);font-family:var(--mono)}
+
+/* evidence */
+#evidence{background:#060b14}
+.evidence-layout{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:900px){.evidence-layout{grid-template-columns:1fr}}
+.clues{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.clues{grid-template-columns:1fr}}
+.clue-btn{text-align:left;background:rgba(255,255,255,.03);border:1px solid var(--line2);border-radius:14px;padding:16px;color:var(--ink);transition:.3s}
+.clue-btn small{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber)}
+.clue-btn b{display:block;font-family:var(--serif);font-size:19px;margin-top:6px;line-height:1.2}
+.clue-btn span{font-size:12px;color:var(--ink-dim);display:block;margin-top:6px;line-height:1.5}
+.clue-btn.active{border-color:var(--amber);background:rgba(217,164,65,.08)}
+.clue-btn:hover{transform:translateY(-2px);border-color:var(--amber)}
+.clue-detail{background:linear-gradient(180deg,#0d1729,#080f1d);border:1px solid var(--line);border-radius:20px;padding:28px;position:sticky;top:90px}
+.clue-detail .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber)}
+.clue-detail h3{font-family:var(--serif);font-size:32px;margin-top:10px;line-height:1.05}
+.clue-detail p{color:var(--ink-dim);line-height:1.8;margin-top:14px;font-size:15px}
+.clue-detail .fact{margin-top:20px;background:rgba(217,164,65,.08);border:1px solid rgba(217,164,65,.3);border-radius:12px;padding:14px;font-family:var(--mono);font-size:12px;line-height:1.6;color:var(--amber2)}
+.clue-img{margin-top:20px;border-radius:14px;overflow:hidden;border:1px solid var(--line2);aspect-ratio:16/9}
+.clue-img img{width:100%;height:100%;object-fit:cover;filter:grayscale(.5) brightness(.85)}
+
+/* theories */
+#theories{background:linear-gradient(180deg,#060b14,#04070d)}
+.theories-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+@media(max-width:800px){.theories-grid{grid-template-columns:1fr}}
+.theory{background:rgba(255,255,255,.03);border:1px solid var(--line2);border-radius:20px;padding:26px;transition:.3s}
+.theory:hover{border-color:var(--line);transform:translateY(-3px)}
+.theory-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.theory h3{font-family:var(--serif);font-size:26px;line-height:1.1}
+.theory .tag{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:6px 9px;border-radius:100px;border:1px solid var(--line);color:var(--ink-dim);white-space:nowrap}
+.theory p{color:var(--ink-dim);line-height:1.7;font-size:14px;margin-top:12px}
+.vote-row{display:flex;align-items:center;gap:12px;margin-top:20px}
+.vote-btn{background:var(--amber);color:#0a0f18;border:none;padding:11px 18px;border-radius:100px;font-weight:800;font-size:12px;letter-spacing:.08em;text-transform:uppercase;transition:.3s}
+.vote-btn:hover{background:var(--amber2)}
+.vote-btn.voted{background:#1a2a44;color:var(--amber2);border:1px solid var(--amber)}
+.vote-bar{flex:1;height:8px;background:rgba(255,255,255,.07);border-radius:100px;overflow:hidden}
+.vote-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--amber),var(--amber2));width:0%;transition:width 1s ease}
+.vote-pct{font-family:var(--mono);font-size:13px;min-width:48px;text-align:right}
+.vote-count{font-family:var(--mono);font-size:11px;color:var(--ink-faint)}
+
+/* investigation */
+#investigation{background:#060b14}
+.telegram{background:#f3ead6;color:#1a1f2a;border-radius:16px;padding:28px;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.45);transform:rotate(-.6deg)}
+.telegram::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:repeating-linear-gradient(90deg,#1a1f2a 0 12px,transparent 12px 24px);opacity:.15;border-radius:16px 16px 0 0}
+.telegram h3{font-family:var(--mono);font-size:12px;letter-spacing:.24em;text-transform:uppercase;border-bottom:2px solid rgba(0,0,0,.15);padding-bottom:12px}
+.telegram blockquote{font-family:var(--serif);font-size:clamp(20px,2.6vw,28px);line-height:1.4;font-style:italic;margin-top:18px}
+.telegram .from{font-family:var(--mono);font-size:12px;margin-top:16px;color:rgba(0,0,0,.6)}
+.invest-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+@media(max-width:900px){.invest-grid{grid-template-columns:1fr}}
+.timeline{margin-top:8px}
+.timeline-item{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line2)}
+.timeline-item:last-child{border:none}
+.timeline-date{font-family:var(--mono);font-size:12px;color:var(--amber);min-width:86px;line-height:1.4}
+.timeline-item h4{font-family:var(--serif);font-size:20px}
+.timeline-item p{color:var(--ink-dim);font-size:14px;line-height:1.6;margin-top:4px}
+.ship-card{background:linear-gradient(180deg,#0d1729,#080f1d);border:1px solid var(--line);border-radius:20px;padding:26px}
+.ship-card h3{font-family:var(--serif);font-size:28px}
+.ship-card p{color:var(--ink-dim);line-height:1.7;margin-top:12px;font-size:14px}
+.ship-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.ship-stats div{background:rgba(255,255,255,.04);border:1px solid var(--line2);border-radius:12px;padding:14px}
+.ship-stats b{font-family:var(--serif);font-size:22px;display:block}
+.ship-stats span{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint)}
+
+/* footer */
+footer{border-top:1px solid var(--line2);padding:48px 28px 32px;background:#03050a}
+.footer-inner{max-width:1280px;margin:0 auto;display:flex;justify-content:space-between;gap:28px;flex-wrap:wrap}
+footer p{color:var(--ink-faint);font-size:13px;line-height:1.7;max-width:520px}
+footer .mono{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim)}
+.top-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:transparent;color:var(--ink);padding:12px 18px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:.3s}
+.top-btn:hover{border-color:var(--amber);color:var(--amber2)}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<header id="header">
+  <a class="logo" href="#hero"><span class="logo-mark"><span></span></span> Flannan · 1900</a>
+  <nav>
+    <a href="#prologue">Prologue</a>
+    <a href="#keepers">Les gardiens</a>
+    <a href="#chronicle">Le journal de bord</a>
+    <a href="#evidence">Les indices</a>
+    <a href="#theories">Les théories</a>
+  </nav>
+  <div class="header-right">
+    <button class="sound-btn" id="soundBtn" aria-label="Activer le son de l’océan">◉ Son de l’océan</button>
+  </div>
+</header>
+
+<main>
+<!-- HERO -->
+<section id="hero" style="padding:0">
+  <div id="stars"></div>
+  <div class="moon"></div>
+  <div id="lightning"></div>
+
+  <div class="hero-inner">
+    <span class="eyebrow"><i></i> Océan Atlantique · 59°31′ N 7°35′ W</span>
+    <h1>
+      <span class="line1">Le phare</span>
+      <span class="line2">des îles</span>
+      <span class="line2">Flannan</span>
+      <span class="line3">— trois hommes ont disparu au milieu de l’océan</span>
+    </h1>
+    <p class="hero-sub">En décembre 1900, la lumière du phare dressé sur un rocher à 30 kilomètres de l’Écosse s’éteignit brusquement. Lorsque le navire de secours <strong>Hesperus</strong> atteignit l’île, elle était déserte. La porte était verrouillée de l’intérieur. Les horloges s’étaient arrêtées. Les corps ne furent jamais retrouvés.</p>
+    <div class="hero-cta">
+      <a class="btn btn-amber" href="#chronicle">Commencer l’enquête ↓</a>
+      <a class="btn btn-ghost" href="#theories">Hypothèses de la disparition</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><b data-count="3">0</b><span>gardiens disparus</span></div>
+      <div class="stat"><b data-count="11">0</b><span>jours de silence</span></div>
+      <div class="stat"><b data-count="215">0</b><span>pieds au-dessus de la mer</span></div>
+      <div class="stat"><b data-count="0">0</b><span>corps retrouvés</span></div>
+    </div>
+  </div>
+
+  <div class="scene" id="scene">
+    <div class="beam-glow" id="beamGlow"></div>
+    <div class="lighthouse-wrap" id="lighthouseWrap">
+      <svg viewBox="0 0 280 220" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="beamGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#f0c96a" stop-opacity=".9"/>
+            <stop offset="100%" stop-color="#f0c96a" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="towerGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#e8e0cc"/>
+            <stop offset="55%" stop-color="#f5efe0"/>
+            <stop offset="100%" stop-color="#c9bfa5"/>
+          </linearGradient>
+        </defs>
+        <g id="beamGroup" style="transform-origin:140px 42px">
+          <polygon points="140,42 20,18 20,66" fill="url(#beamGrad)" opacity=".55"/>
+          <polygon points="140,42 260,18 260,66" fill="url(#beamGrad)" opacity=".55"/>
+        </g>
+        <polygon points="30,220 70,150 210,150 250,220" fill="#0d1626"/>
+        <polygon points="55,220 85,165 195,165 225,220" fill="#111f36"/>
+        <rect x="118" y="52" width="44" height="102" rx="4" fill="url(#towerGrad)"/>
+        <rect x="118" y="78" width="44" height="10" fill="#1a2a44" opacity=".9"/>
+        <rect x="118" y="108" width="44" height="10" fill="#1a2a44" opacity=".9"/>
+        <rect x="132" y="122" width="16" height="28" rx="8" fill="#0a1220"/>
+        <rect x="112" y="38" width="56" height="16" rx="3" fill="#0a1220"/>
+        <rect x="120" y="24" width="40" height="16" rx="2" fill="#f0c96a"/>
+        <circle cx="140" cy="32" r="7" fill="#fff3c4"/>
+        <polygon points="120,24 140,6 160,24" fill="#0a1220"/>
+        <rect x="138" y="0" width="4" height="10" fill="#0a1220"/>
+        <ellipse cx="140" cy="218" rx="120" ry="10" fill="#04070d" opacity=".6"/>
+      </svg>
+    </div>
+    <canvas id="oceanCanvas"></canvas>
+    <div class="fog f1" id="fog1"></div>
+    <div class="fog f2" id="fog2"></div>
+  </div>
+
+  <div class="storm-panel">
+    <h4>Force de la tempête <em id="stormVal">35%</em></h4>
+    <p>Déplacez le curseur — l’océan, la pluie et le brouillard de cette page réagissent en temps réel.</p>
+    <input type="range" id="stormRange" min="0" max="100" value="35" aria-label="Force de la tempête">
+    <div class="storm-labels"><span>Calme</span><span>Tempête</span><span>Ouragan</span></div>
+    <div class="storm-status"><span id="stormText">Vent : frais</span><span id="waveText">Vagues : 2 m</span></div>
+  </div>
+</section>
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track" id="marqueeTrack">
+    <span>Décembre 1900 <b>•</b> Trois gardiens <b>•</b> Un seul phare <b>•</b> Aucun corps <b>•</b> Les horloges se sont arrêtées <b>•</b> Archtor <b>•</b> Hesperus <b>•</b> Eilean Mòr <b>•</b></span>
+    <span>Décembre 1900 <b>•</b> Trois gardiens <b>•</b> Un seul phare <b>•</b> Aucun corps <b>•</b> Les horloges se sont arrêtées <b>•</b> Archtor <b>•</b> Hesperus <b>•</b> Eilean Mòr <b>•</b></span>
+  </div>
+</div>
+
+<!-- PROLOGUE -->
+<section id="prologue">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <div class="sec-num">01 — Prologue</div>
+        <h2>Le rocher où il est <i>impossible</i><br>de rester seul</h2>
+      </div>
+      <p class="sec-desc">Les îles Flannan sont sept rochers nus dans l’Atlantique. Le phare fut construit en 1899 pour éviter que les navires ne se brisent sur les récifs. Il n’avait fonctionné qu’un an.</p>
+    </div>
+    <div class="prologue-grid">
+      <div class="reveal">
+        <p class="big-text">À 30 kilomètres de la côte. <em>Aucun arbre, aucune route.</em> Seulement le vent, les mouettes et 160 marches dans le rocher.</p>
+        <p class="body-text">Le phare de l’île d’Eilean Mòr mesure 23 mètres de haut et domine la mer de 65 mètres. Les gardiens vivaient dans la tour à deux ou trois, relevés tous les deux mois. Dehors, l’Atlantique en plein visage. Dedans, une lampe à pétrole, un journal de bord et un silence que le faisceau lumineux déchirait toutes les quelques minutes.</p>
+        <p class="body-text">Le 15 décembre 1900, le vapeur <strong style="color:var(--ink)">Archtor</strong>, en route de Philadelphie vers Leith, passa devant les îles et inscrivit au journal de bord : <em>« La lumière du phare ne brûle pas »</em>. À terre, on y vit une simple panne passagère. Personne ne savait que la lampe ne serait plus jamais rallumée par les mains de ses gardiens.</p>
+        <div class="coords">
+          <span class="chip"><b>59°31′ N</b> · 7°35′ W</span>
+          <span class="chip"><b>30 km</b> de l’île de Lewis</span>
+          <span class="chip"><b>1899</b> — premier éclat</span>
+          <span class="chip"><b>1900</b> — la disparition</span>
+        </div>
+      </div>
+      <div class="img-frame reveal">
+        <img src="https://images.pexels.com/photos/16277006/pexels-photo-16277006.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200" alt="Phare sous l’orage la nuit">
+        <div class="img-caption"><span><b>ATLANTIQUE</b> · TEMPÊTE</span><span>15.12.1900</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KEEPERS -->
+<section id="keepers">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <div class="sec-num">02 — Les gardiens</div>
+        <h2>Les trois qui <i>ne sont pas revenus</i></h2>
+      </div>
+      <p class="sec-desc">Le surintendant du Northern Lighthouse Board, Robert Muirhead, connaissait les trois hommes de vue — c’est lui-même qui les avait choisis. Survolez une carte.</p>
+    </div>
+    <div class="keepers-grid">
+      <article class="keeper reveal" data-num="01">
+        <div class="monogram">JD</div>
+        <h3>James Ducat</h3>
+        <div class="role">Gardien principal · 38 ans</div>
+        <p>Gardien chevronné, responsable de la lampe et du journal. Ses collègues le décrivaient comme un homme calme et fiable, qui ne paniquait jamais dans la tempête. Ses cirés n’ont pas été retrouvés sur l’île.</p>
+        <div class="meta"><span>Expérience : plus de 10 ans</span><span>Consciencieux</span><span>Écosse</span></div>
+        <div class="quote">« Il connaissait la mer mieux que lui-même. »<small>— d’après le témoignage de Muirhead</small></div>
+      </article>
+      <article class="keeper reveal" data-num="02">
+        <div class="monogram">TM</div>
+        <h3>Thomas Marshall</h3>
+        <div class="role">Second gardien · 48 ans</div>
+        <p>Le plus âgé des trois. Il avait servi vingt ans dans les phares. C’est à lui qu’on a attribué les entrées tardives du journal évoquant « des vents tels que je n’en avais jamais vus en vingt ans » — des entrées qui se révélèrent plus tard fabriquées.</p>
+        <div class="meta"><span>Expérience : 20 ans</span><span>Vétéran</span><span>Écosse</span></div>
+        <div class="quote">« Des vents violents, tels que je n’en avais pas vus depuis vingt ans. »<small>— entrée attribuée, 12 décembre</small></div>
+      </article>
+      <article class="keeper reveal" data-num="03">
+        <div class="monogram">DM</div>
+        <h3>Donald MacArthur</h3>
+        <div class="role">Troisième · « Occasional » · 40 ans</div>
+        <p>Marin à la réputation d’homme colérique et amateur de bagarres. Son manteau est resté à l’intérieur de la tour — signe qu’il était sorti sans protection ou qu’il n’avait pas l’intention de sortir. Le détail le plus troublant.</p>
+        <div class="meta"><span>Colérique</span><span>Marin</span><span>Manteau sur place</span></div>
+        <div class="quote">« Il n’aurait jamais pleuré pour une tempête. »<small>— collègues à propos de MacArthur</small></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- CHRONICLE / LOGBOOK -->
+<section id="chronicle">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <div class="sec-num">03 — La chronique</div>
+        <h2>Le journal qui <i>s’est tu</i></h2>
+      </div>
+      <p class="sec-desc">Cliquez sur une date pour lire l’entrée. La dernière ligne du journal est la plus glaçante : elle ressemble à des adieux.</p>
+    </div>
+    <div class="logbook-layout reveal">
+      <div class="log-dates" id="logDates"></div>
+      <div class="log-paper">
+        <div class="log-top">
+          <div>
+            <div style="font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(0,0,0,.5)">Journal des gardiens · Eilean Mòr</div>
+            <h3 id="logTitle">—</h3>
+          </div>
+          <div class="weather" id="logWeather">—</div>
+        </div>
+        <div class="log-text" id="logText"></div>
+        <div class="log-foot">
+          <span class="badge" id="logBadge">Entrée</span>
+          <div class="storm-bar"><i id="logStormBar"></i></div>
+          <span class="log-note" id="logNote">Tempête : —</span>
+        </div>
+      </div>
+    </div>
+    <p style="margin-top:16px;font-family:var(--mono);font-size:12px;color:var(--ink-faint);line-height:1.7" class="reveal">⚠ Note historique : l’enquête du journaliste Mike Dash pour le Fortean Times a montré que les entrées « émotionnelles » des 12–15 décembre ont très probablement été inventées après coup et ne constituent pas un journal authentique. Seuls les faits sont certains : la lumière s’est éteinte, les hommes ont disparu, aucun corps n’a été retrouvé.</p>
+  </div>
+</section>
+
+<!-- EVIDENCE -->
+<section id="evidence">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <div class="sec-num">04 — Les indices</div>
+        <h2>Ce que <i>Joseph Moore</i> a découvert</h2>
+      </div>
+      <p class="sec-desc">Le 26 décembre, le gardien de relève Moore gravit les 160 marches et entra dans la tour. Voici ce qu’il vit — cliquez pour examiner chaque indice.</p>
+    </div>
+    <div class="evidence-layout">
+      <div class="clues reveal" id="cluesGrid"></div>
+      <aside class="clue-detail reveal" id="clueDetail">
+        <div class="kicker" id="clueKicker">Indice 01</div>
+        <h3 id="clueTitle">Les horloges arrêtées</h3>
+        <p id="clueText">—</p>
+        <div class="fact" id="clueFact">—</div>
+        <div class="clue-img"><img id="clueImg" src="https://images.pexels.com/photos/33869109/pexels-photo-33869109.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200" alt="Phare dans la tempête"></div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- THEORIES -->
+<section id="theories">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <div class="sec-num">05 — Les théories</div>
+        <h2>Où sont passés <i>les trois hommes ?</i></h2>
+      </div>
+      <p class="sec-desc">Depuis plus de 120 ans, les hypothèses s’opposent. Votez pour celle à laquelle vous croyez. Les votes sont comptabilisés sur cette page en temps réel.</p>
+    </div>
+    <div class="theories-grid" id="theoriesGrid"></div>
+    <p style="margin-top:18px;font-family:var(--mono);font-size:12px;color:var(--ink-faint)" class="reveal" id="totalVotes">Total des votes : 0 · Cliquez sur « Je soutiens » pour voter</p>
+  </div>
+</section>
+
+<!-- INVESTIGATION -->
+<section id="investigation">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <div class="sec-num">06 — L’enquête</div>
+        <h2>Le télégramme qui <i>ébranla</i> l’Écosse</h2>
+      </div>
+      <p class="sec-desc">Le capitaine du Hesperus, James Harvey, envoya au Northern Lighthouse Board l’un des messages les plus terrifiants de l’histoire maritime.</p>
+    </div>
+    <div class="invest-grid">
+      <div class="reveal">
+        <div class="telegram">
+          <h3>Télégramme · 26 décembre 1900 · Breasclete</h3>
+          <blockquote>« Un terrible malheur est survenu aux Flannan. Les trois gardiens — Ducat, Marshall et l’Occasional — ont disparu de l’île. Les horloges se sont arrêtées, et tout laisse à penser que le malheur s’est produit il y a environ une semaine. Les pauvres hommes ont dû être emportés des falaises par le vent ou se sont noyés en essayant d’arrimer la grue. »</blockquote>
+          <div class="from">— Capitaine James Harvey, navire Hesperus</div>
+        </div>
+        <div class="timeline" style="margin-top:28px">
+          <div class="timeline-item"><div class="timeline-date">15 DÉCEMBRE</div><div><h4>L’Archtor ne voit aucune lumière</h4><p>Le vapeur en provenance de Philadelphie consigne : le phare est éteint par mauvais temps. Le message est transmis à Leith le 18 décembre.</p></div></div>
+          <div class="timeline-item"><div class="timeline-date">20 DÉCEMBRE</div><div><h4>Le Hesperus ne peut appareiller</h4><p>Le navire de secours est retenu par la tempête à Breasclete, île de Lewis.</p></div></div>
+          <div class="timeline-item"><div class="timeline-date">26 DÉCEMBRE</div><div><h4>Midi : une île déserte</h4><p>Moore trouve la tour vide. Personne sur l’île. Les fouilles du rocher — rien.</p></div></div>
+          <div class="timeline-item"><div class="timeline-date">29 DÉCEMBRE</div><div><h4>Muirhead arrive</h4><p>Le surintendant, qui connaissait personnellement les trois hommes, ouvre l’enquête officielle. Les corps ne seront jamais retrouvés.</p></div></div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="ship-card">
+          <div style="font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber)">Navire de secours</div>
+          <h3>Hesperus</h3>
+          <p>C’est bien le Hesperus — et non l’Archtor — qui découvrit le phare désert. L’Archtor avait seulement été le premier à constater la lumière éteinte. À bord du Hesperus se trouvaient le gardien de relève Joseph Moore et l’équipage qui gravit le premier le rocher.</p>
+          <div class="ship-stats">
+            <div><b>160</b><span>marches jusqu’à la tour</span></div>
+            <div><b>11 jours</b><span>le phare est resté éteint</span></div>
+            <div><b>1</b><span>un manteau resté à l’intérieur</span></div>
+            <div><b>0</b><span>trace de lutte</span></div>
+          </div>
+        </div>
+        <div class="img-frame" style="margin-top:18px;aspect-ratio:16/10">
+          <img src="https://images.pexels.com/photos/11084510/pexels-photo-11084510.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200" alt="Vagues contre les rochers">
+          <div class="img-caption"><span><b>APPONTEMENT OUEST</b> · DÉTRUIT</span><span>GRUE ARRACHÉE</span></div>
+        </div>
+        <p style="color:var(--ink-dim);line-height:1.8;margin-top:18px;font-size:14px">L’appontement ouest avait été entièrement détruit : les garde-fous arrachés, la grue de chargement arrachée de ses fondations. C’est l’indice majeur en faveur de la vague tueuse — une vague géante qui s’est abattue sur le rocher et a emporté les hommes sortis fixer le matériel.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="mono" style="margin-bottom:12px">Phare des îles Flannan · 1900–2026</div>
+      <p>Une enquête interactive. L’océan en canvas, la pluie, le brouillard et le son du vent sont générés par le code en temps réel. Les faits historiques ont été vérifiés à partir des archives du Northern Lighthouse Board et des recherches de Mike Dash.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:flex-start">
+      <span class="mono">La lumière s’est éteinte. Les hommes, jamais. <a href="https://untoldarchive.com/ru/">UntoldArchive.com</a></span>
+      <button class="top-btn" id="toTop">↑ Revenir au début de l’enquête</button>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============ PURE JS — NO LIBRARIES ============ */
+(function(){
+'use strict';
+
+/* ---------- Stars ---------- */
+var starsBox = document.getElementById('stars');
+for(var i=0;i<90;i++){
+  var s=document.createElement('span');
+  s.className='star';
+  var sz=(Math.random()*2+1).toFixed(1);
+  s.style.width=sz+'px'; s.style.height=sz+'px';
+  s.style.left=(Math.random()*100)+'%';
+  s.style.top=(Math.random()*55)+'%';
+  s.style.animationDelay=(Math.random()*3)+'s';
+  starsBox.appendChild(s);
+}
+
+/* ---------- Header + progress ---------- */
+var header=document.getElementById('header');
+var progress=document.getElementById('progress');
+function onScroll(){
+  var y=window.scrollY||document.documentElement.scrollTop;
+  header.classList.toggle('scrolled', y>40);
+  var h=document.documentElement.scrollHeight-window.innerHeight;
+  progress.style.width=(h>0?(y/h*100):0)+'%';
+}
+window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
+
+/* ---------- Reveal on scroll ---------- */
+var io=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target);} });
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+/* ---------- Counters ---------- */
+var counters=document.querySelectorAll('[data-count]');
+var cio=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(!e.isIntersecting) return;
+    var el=e.target, target=+el.getAttribute('data-count'), start=null;
+    function step(ts){
+      if(!start) start=ts;
+      var p=Math.min((ts-start)/1200,1);
+      el.textContent=Math.round(target*(1-Math.pow(1-p,3)));
+      if(p<1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+    cio.unobserve(el);
+  });
+},{threshold:.5});
+counters.forEach(function(c){ cio.observe(c); });
+
+/* ---------- Ocean canvas + rain + lightning ---------- */
+var canvas=document.getElementById('oceanCanvas');
+var ctx=canvas.getContext('2d');
+var W=0,H=0, storm=35, t=0, drops=[];
+function resize(){
+  var r=canvas.getBoundingClientRect();
+  W=canvas.width=Math.max(300,Math.floor(r.width));
+  H=canvas.height=Math.max(120,Math.floor(r.height));
+}
+resize(); window.addEventListener('resize',resize);
+
+function makeDrops(){
+  var need=Math.floor(storm*1.6);
+  while(drops.length<need) drops.push({x:Math.random()*W,y:Math.random()*H,l:10+Math.random()*14,v:6+Math.random()*8});
+  drops.length=need;
+}
+makeDrops();
+
+function drawOcean(){
+  t+=0.016;
+  ctx.clearRect(0,0,W,H);
+  var amp=4+(storm/100)*16;
+  var layers=[
+    {y:H*0.35, c:'rgba(20,38,64,.55)', sp:1.1, a:amp},
+    {y:H*0.55, c:'rgba(14,28,50,.75)', sp:1.6, a:amp*1.25},
+    {y:H*0.78, c:'rgba(7,14,28,.95)', sp:2.2, a:amp*1.5}
+  ];
+  layers.forEach(function(L,idx){
+    ctx.beginPath();
+    ctx.moveTo(0,H);
+    for(var x=0;x<=W;x+=6){
+      var y=L.y + Math.sin(x*0.012 + t*L.sp + idx*2)*L.a + Math.sin(x*0.03 + t*L.sp*1.7)*L.a*0.35;
+      ctx.lineTo(x,y);
+    }
+    ctx.lineTo(W,H); ctx.closePath();
+    ctx.fillStyle=L.c; ctx.fill();
+    /* foam line */
+    ctx.beginPath();
+    for(var x2=0;x2<=W;x2+=6){
+      var y2=L.y + Math.sin(x2*0.012 + t*L.sp + idx*2)*L.a + Math.sin(x2*0.03 + t*L.sp*1.7)*L.a*0.35;
+      if(x2===0) ctx.moveTo(x2,y2); else ctx.lineTo(x2,y2);
+    }
+    ctx.strokeStyle='rgba(236,229,211,'+(0.10+storm/100*0.22)+')';
+    ctx.lineWidth=1.2; ctx.stroke();
+  });
+  /* rain */
+  if(storm>4){
+    ctx.strokeStyle='rgba(180,200,230,'+(0.12+storm/100*0.35)+')';
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    drops.forEach(function(d){
+      ctx.moveTo(d.x,d.y); ctx.lineTo(d.x-2,d.y+d.l);
+      d.y+=d.v; d.x-=1.2;
+      if(d.y>H){ d.y=-20; d.x=Math.random()*W; }
+    });
+    ctx.stroke();
+  }
+  requestAnimationFrame(drawOcean);
+}
+drawOcean();
+
+/* lightning */
+var lightning=document.getElementById('lightning');
+setInterval(function(){
+  if(storm>65 && Math.random()>0.55){
+    lightning.style.opacity='0.55';
+    setTimeout(function(){ lightning.style.opacity='0'; },90);
+    setTimeout(function(){ lightning.style.opacity='0.35'; },170);
+    setTimeout(function(){ lightning.style.opacity='0'; },280);
+  }
+},2600);
+
+/* ---------- Storm control ---------- */
+var range=document.getElementById('stormRange');
+var stormVal=document.getElementById('stormVal');
+var stormText=document.getElementById('stormText');
+var waveText=document.getElementById('waveText');
+var fog1=document.getElementById('fog1'), fog2=document.getElementById('fog2');
+function stormLabel(v){
+  if(v<20) return 'Vent : calme';
+  if(v<45) return 'Vent : frais';
+  if(v<70) return 'Vent : force de tempête';
+  if(v<90) return 'Vent : ouragan';
+  return 'Vent : catastrophique';
+}
+function applyStorm(){
+  storm=+range.value;
+  stormVal.textContent=storm+'%';
+  stormText.textContent=stormLabel(storm);
+  waveText.textContent='Vagues : '+Math.round(0.5+storm/100*11)+' m';
+  fog1.style.opacity=(0.35+storm/100*0.65).toFixed(2);
+  fog2.style.opacity=(0.25+storm/100*0.75).toFixed(2);
+  makeDrops();
+  if(audioCtx && audioGain) audioGain.gain.value = 0.02 + storm/100*0.14;
+}
+range.addEventListener('input',applyStorm); applyStorm();
+
+/* ---------- Lighthouse beam rotation + parallax ---------- */
+var beam=document.getElementById('beamGroup');
+var beamGlow=document.getElementById('beamGlow');
+var lighthouseWrap=document.getElementById('lighthouseWrap');
+var mouseX=0, mouseY=0;
+document.addEventListener('mousemove',function(e){
+  mouseX=(e.clientX/window.innerWidth-0.5);
+  mouseY=(e.clientY/window.innerHeight-0.5);
+  fog1.style.marginLeft=(mouseX*-30)+'px';
+  fog2.style.marginLeft=(mouseX*22)+'px';
+});
+var beamAngle=0;
+(function animateBeam(){
+  beamAngle+=0.35 + storm/100*0.9;
+  beam.style.transform='rotate('+beamAngle+'deg)';
+  beamGlow.style.transform='translate(-50%,-50%) rotate('+beamAngle+'deg)';
+  lighthouseWrap.style.transform='translateX(calc(-50% + '+(mouseX*10)+'px)) translateY('+(mouseY*4)+'px)';
+  requestAnimationFrame(animateBeam);
+})();
+
+/* ---------- Logbook data + typewriter ---------- */
+var logs=[
+  {date:'12 décembre', short:'12.12 · Vent', title:'12 décembre 1900', weather:'Vent : ouest, 60 nœuds\nVisibilité : 200 m', text:'Des vents violents, tels que je n’en avais jamais vus en vingt ans. Ducat est très silencieux. MacArthur pleure.', badge:'Entrée tardive · contestée', warn:true, storm:62, note:'Tempête : forte'},
+  {date:'13 décembre', short:'13.12 · Tempête', title:'13 décembre 1900', weather:'Vent : force de tempête\nMer : grosse', text:'La tempête continue. Tous trois ont prié. La lampe brûle, mais sa lumière perce à peine l’obscurité.', badge:'Entrée tardive · contestée', warn:true, storm:78, note:'Tempête : très forte'},
+  {date:'15 décembre', short:'15.12 · Silence', title:'15 décembre 1900', weather:'Vent : tombé\nMer : calme', text:'La tempête est finie, la mer est calme. Dieu est au-dessus de tout.\n\n— Dernière entrée. Ensuite, le journal est vide. La lumière du phare s’est éteinte ce soir-là.', badge:'Dernière entrée', warn:false, storm:18, note:'Tempête : retombée'},
+  {date:'26 décembre', short:'26.12 · Hesperus', title:'26 décembre 1900 · Midi', weather:'Vent : modéré\nVisibilité : bonne', text:'Le Hesperus arrive à midi.\n\nPas une âme sur l’île. La porte de la tour est verrouillée. À l’intérieur : des horloges arrêtées, un repas à moitié mangé, une chaise renversée. Les trois hommes ont disparu. Les fouilles du rocher n’ont rien donné.', badge:'Découverte', warn:false, storm:30, note:'Tempête : modérée'}
+];
+var logDates=document.getElementById('logDates');
+var logTitle=document.getElementById('logTitle');
+var logWeather=document.getElementById('logWeather');
+var logText=document.getElementById('logText');
+var logBadge=document.getElementById('logBadge');
+var logStormBar=document.getElementById('logStormBar');
+var logNote=document.getElementById('logNote');
+var typeTimer=null;
+
+function typeText(text){
+  clearInterval(typeTimer);
+  logText.textContent='';
+  var i=0;
+  typeTimer=setInterval(function(){
+    logText.textContent=text.slice(0,++i);
+    if(i>=text.length) clearInterval(typeTimer);
+  },22);
+}
+function selectLog(idx){
+  var L=logs[idx];
+  document.querySelectorAll('.log-date-btn').forEach(function(b,j){ b.classList.toggle('active',j===idx); });
+  logTitle.textContent=L.title;
+  logWeather.textContent=L.weather;
+  logBadge.textContent=L.badge;
+  logBadge.className='badge'+(L.warn?' warn':'');
+  logNote.textContent=L.note;
+  logStormBar.style.width='0%';
+  setTimeout(function(){ logStormBar.style.width=L.storm+'%'; },60);
+  typeText(L.text);
+}
+logs.forEach(function(L,i){
+  var b=document.createElement('button');
+  b.className='log-date-btn'+(i===0?' active':'');
+  b.innerHTML='<b>'+L.date+'</b><span>'+L.short+'</span>';
+  b.addEventListener('click',function(){ selectLog(i); });
+  logDates.appendChild(b);
+});
+selectLog(0);
+
+/* ---------- Clues ---------- */
+var clues=[
+  {k:'Indice 01', t:'Les horloges arrêtées', s:'Le temps s’est figé', text:'Toutes les horloges de la tour s’étaient arrêtées. On pouvait en conclure une chose : quelque chose s’était produit brusquement, une semaine plus tôt environ — vers le 15 décembre, le soir même où l’Archtor vit la lumière éteinte.', fact:'FAIT : Horloges arrêtées + lumière éteinte = une seule et même nuit. Le 15 décembre 1900.', img:'https://images.pexels.com/photos/33869109/pexels-photo-33869109.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200'},
+  {k:'Indice 02', t:'Le repas inachevé', s:'Une chaise renversée', text:'Sur la table : de la nourriture à moitié mangée — de la viande, des cornichons et des pommes de terre. Une chaise était renversée, comme si quelqu’un s’était levé d’un bond. Le lit n’était pas fait. Le canari dans sa cage mourait de faim.', fact:'FAIT : Les hommes n’avaient pas l’intention de partir. Ils étaient en pleine soirée ordinaire.', img:'https://images.pexels.com/photos/8043640/pexels-photo-8043640.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200'},
+  {k:'Indice 03', t:'La porte verrouillée', s:'Mais vide à l’intérieur', text:'La porte d’entrée de la tour était verrouillée de l’extérieur — Moore l’ouvrit avec sa propre clé. Et pourtant, personne à l’intérieur. Les trois hommes étaient donc sortis sans revenir, ou les vagues les avaient emportés.', fact:'FAIT : La porte verrouillée exclut la thèse d’un départ volontaire sans aucune trace.', img:'https://images.pexels.com/photos/18121523/pexels-photo-18121523.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200'},
+  {k:'Indice 04', t:'Deux cirés disparus', s:'Le troisième — en place', text:'Sur les trois jeux de cirés de tempête, un seul était là : le manteau de MacArthur. Les deux autres avaient disparu avec Ducat et Marshall. Ils étaient sortis dans la tempête, protégés par leurs cirés.', fact:'FAIT : Ducat et Marshall sont sortis dans la tempête. MacArthur est peut-être resté — ou sorti sans manteau.', img:'https://images.pexels.com/photos/11084510/pexels-photo-11084510.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200'},
+  {k:'Indice 05', t:'L’embarcadère détruit', s:'La grue arrachée', text:'L’appontement ouest avait été entièrement détruit : les garde-fous emportés, la grue de levage arrachée. Seule une vague géante se brisant sur le rocher pouvait causer une telle destruction.', fact:'FAIT : Des dégâts à cette hauteur — l’argument majeur en faveur d’une vague scélérate.', img:'https://images.pexels.com/photos/16277006/pexels-photo-16277006.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200'},
+  {k:'Indice 06', t:'Le journal en place', s:'Rien n’a été volé', text:'Le journal, les instruments, les effets personnels — tout à sa place. Aucune trace de lutte, d’effraction ni de vol. Personne n’avait débarqué sur l’île. Les hommes s’étaient simplement évaporés.', fact:'FAIT : L’absence de toute trace de violence rend l’hypothèse d’une attaque extrêmement improbable.', img:'https://images.pexels.com/photos/33869109/pexels-photo-33869109.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200'}
+];
+var cluesGrid=document.getElementById('cluesGrid');
+var clueKicker=document.getElementById('clueKicker');
+var clueTitle=document.getElementById('clueTitle');
+var clueText=document.getElementById('clueText');
+var clueFact=document.getElementById('clueFact');
+var clueImg=document.getElementById('clueImg');
+function selectClue(i){
+  var c=clues[i];
+  document.querySelectorAll('.clue-btn').forEach(function(b,j){ b.classList.toggle('active',j===i); });
+  clueKicker.textContent=c.k;
+  clueTitle.textContent=c.t;
+  clueText.textContent=c.text;
+  clueFact.textContent=c.fact;
+  clueImg.src=c.img;
+}
+clues.forEach(function(c,i){
+  var b=document.createElement('button');
+  b.className='clue-btn'+(i===0?' active':'');
+  b.innerHTML='<small>'+c.k+'</small><b>'+c.t+'</b><span>'+c.s+'</span>';
+  b.addEventListener('click',function(){ selectClue(i); });
+  cluesGrid.appendChild(b);
+});
+selectClue(0);
+
+/* ---------- Theories voting ---------- */
+var theories=[
+  {t:'La vague scélérate', tag:'Hypothèse principale', p:'Une vague géante s’est abattue sur le rocher, a détruit l’appontement ouest et emporté Ducat et Marshall, sortis fixer la grue. MacArthur, sorti à sa suite sans manteau, périt dans la même vague. Les corps furent entraînés dans l’Atlantique.', votes:1240},
+  {t:'Une dispute au bord de la falaise', tag:'Psychologie', p:'Le colérique MacArthur provoque une bagarre au bord de la falaise. Les trois hommes chutent dans la lutte. Cela explique l’absence de traces de lutte dans la tour : tout s’est passé dehors.', votes:860},
+  {t:'Emportés pendant les travaux', tag:'Officielle', p:'Selon le capitaine Harvey, les hommes ont été emportés par le vent ou se sont noyés en essayant de fixer la grue sur l’appontement ouest. L’hypothèse la plus prosaïque — et la plus ancienne.', votes:540},
+  {t:'Le surnaturel', tag:'Mystère', p:'Dans les années 1900, on parlait de monstres marins et de navires fantômes. Aujourd’hui, d’OVNI et de portails. Cette hypothèse n’a aucune preuve, mais c’est elle qui a transformé l’histoire en légende.', votes:310}
+];
+var theoriesGrid=document.getElementById('theoriesGrid');
+var totalVotesEl=document.getElementById('totalVotes');
+var voted=false;
+function renderTheories(){
+  theoriesGrid.innerHTML='';
+  var total=theories.reduce(function(a,b){return a+b.votes;},0);
+  theories.forEach(function(th,i){
+    var pct=Math.round(th.votes/total*100);
+    var card=document.createElement('div');
+    card.className='theory';
+    card.innerHTML=
+      '<div class="theory-top"><h3>'+th.t+'</h3><span class="tag">'+th.tag+'</span></div>'+
+      '<p>'+th.p+'</p>'+
+      '<div class="vote-row">'+
+        '<button class="vote-btn'+(voted===i?' voted':'')+'" data-i="'+i+'">'+(voted===i?'✓ Votre vote':'Je soutiens')+'</button>'+
+        '<div class="vote-bar"><i style="width:'+pct+'%"></i></div>'+
+        '<span class="vote-pct">'+pct+'%</span>'+
+      '</div>'+
+      '<div class="vote-count">'+th.votes.toLocaleString('fr-FR')+' votes</div>';
+    theoriesGrid.appendChild(card);
+  });
+  totalVotesEl.textContent='Total des votes : '+total.toLocaleString('fr-FR')+' · '+(voted===false?'Cliquez sur « Je soutiens » pour voter':'Vous avez voté pour : '+theories[voted].t);
+  theoriesGrid.querySelectorAll('.vote-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var idx=+btn.getAttribute('data-i');
+      if(voted===idx) return;
+      if(voted!==false) theories[voted].votes--;
+      theories[idx].votes++;
+      voted=idx;
+      renderTheories();
+    });
+  });
+}
+renderTheories();
+
+/* ---------- Keeper tilt ---------- */
+document.querySelectorAll('.keeper').forEach(function(card){
+  card.addEventListener('mousemove',function(e){
+    var r=card.getBoundingClientRect();
+    var rx=((e.clientY-r.top)/r.height-0.5)*-8;
+    var ry=((e.clientX-r.left)/r.width-0.5)*8;
+    card.style.transform='perspective(900px) rotateX('+rx+'deg) rotateY('+ry+'deg) translateY(-4px)';
+  });
+  card.addEventListener('mouseleave',function(){ card.style.transform=''; });
+});
+
+/* ---------- Ocean sound via Web Audio API (generated, no files) ---------- */
+var audioCtx=null, audioGain=null, soundOn=false;
+var soundBtn=document.getElementById('soundBtn');
+soundBtn.addEventListener('click',function(){
+  if(!audioCtx){
+    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    var len=audioCtx.sampleRate*2;
+    var buffer=audioCtx.createBuffer(1,len,audioCtx.sampleRate);
+    var data=buffer.getChannelData(0);
+    for(var i=0;i<len;i++) data[i]=Math.random()*2-1;
+    var src=audioCtx.createBufferSource();
+    src.buffer=buffer; src.loop=true;
+    var filter=audioCtx.createBiquadFilter();
+    filter.type='lowpass'; filter.frequency.value=420;
+    audioGain=audioCtx.createGain();
+    audioGain.gain.value=0.02+storm/100*0.14;
+    src.connect(filter); filter.connect(audioGain); audioGain.connect(audioCtx.destination);
+    src.start();
+  }
+  soundOn=!soundOn;
+  if(soundOn){ audioCtx.resume(); audioGain.gain.value=0.02+storm/100*0.14; soundBtn.classList.add('active'); soundBtn.textContent='◉ Son : activé'; }
+  else { audioGain.gain.value=0; soundBtn.classList.remove('active'); soundBtn.textContent='◉ Son de l’océan'; }
+});
+
+/* ---------- To top ---------- */
+document.getElementById('toTop').addEventListener('click',function(){
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+})();
+</script>
+</body>
+</html>
